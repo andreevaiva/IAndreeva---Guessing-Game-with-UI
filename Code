@@ -1,0 +1,202 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class Main{
+    static JLabel  resultDisplay = new JLabel();
+    static Random rand = new Random();
+    static int answer=rand.nextInt(100)+1;
+    static int tries=0;
+    static JLabel tries_label = new JLabel();
+    static JLabel result = new JLabel();
+    static boolean has_quit = false;
+    static boolean has_won = false;
+    static JTextField guessing =new JTextField();
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("My app");
+        frame.setSize(600, 300);
+        frame.setLayout(null);
+
+
+        JLabel welcoming1 = new JLabel("Welcome to the GuessingGame!");
+        welcoming1.setBounds(10, 20, 600, 25);
+        welcoming1.setFont(new Font("Arial", Font.BOLD, 18));
+        frame.add(welcoming1);
+
+        JLabel welcoming2 = new JLabel("The game is to guess the random number we generated");
+        welcoming2.setBounds(10, 40, 600, 25);
+        welcoming2.setFont(new Font("Arial", Font.PLAIN, 18));
+        frame.add(welcoming2);
+
+        JLabel welcoming3 = new JLabel("for you [1-100]. Click the \"Guess\" button or press ENTER.");
+        welcoming3.setBounds(10, 60, 600, 25);
+        welcoming3.setFont(new Font("Arial", Font.PLAIN, 18));
+        frame.add(welcoming3);
+
+
+        JLabel guess_title = new JLabel("Make a guess:");
+        guess_title.setBounds(10, 100, 600, 25);
+        guess_title.setFont(new Font("Arial", Font.BOLD, 20));
+        frame.add(guess_title);
+
+        guessing = new JTextField();
+        guessing.setBounds(160, 100, 35, 25);
+        frame.add(guessing);
+
+
+        resultDisplay.setBounds(135, 145, 600, 25);
+        resultDisplay.setFont(new Font("Arial", Font.BOLD, 16));
+        frame.add(resultDisplay);
+
+        result = new JLabel("Your answer is... ");
+        result.setBounds(10, 145, 600, 25);
+        result.setFont(new Font("Arial", Font.PLAIN, 16));
+        frame.add(result);
+
+
+        tries_label.setText("You have made " + tries + " tries.");
+        tries_label.setFont(new Font("Arial", Font.PLAIN, 16));
+        tries_label.setBounds(10, 165, 600, 25);
+        frame.add(tries_label);
+
+
+        JButton enter = new JButton("Guess");
+        enter.setBounds(200, 100, 80, 25);
+        enter.setBackground(Color.WHITE);
+        frame.add(enter);
+
+        JButton quit = new JButton("QUIT");
+        quit.setBounds(10, 190, 100, 25);
+        quit.setBackground(Color.GRAY);
+        frame.add(quit);
+
+        JButton restart = new JButton("RESTART");
+        restart.setBounds(120, 190, 100, 25);
+        restart.setBackground(Color.GRAY);
+        frame.add(restart);
+
+        frame.setVisible(true);
+
+        guessing.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    resultDisplay.setText("");
+                    if (!has_won && !guessing.getText().isEmpty()) {
+                        check(guessing);
+                    }else{
+                        if(!guessing.getText().isEmpty()){
+                            result.setFont(new Font("Arial", Font.BOLD, 16));
+                            result.setText("Click RESTART or press SPACE to play again.");
+                        }
+                    }
+                }
+            }
+        });
+
+        guessing.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    restart();
+                }
+            }
+        });
+
+        enter.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resultDisplay.setText("");
+                if(has_won){
+                    result.setFont(new Font("Arial", Font.BOLD, 16));
+                    result.setText("Click RESTART or press SPACE to play again.");
+                }else{
+                    check(guessing);
+                }
+            }
+        });
+
+        quit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(!has_won){
+                    quit();
+                }
+            }
+        });
+
+        restart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                restart();
+            }
+        });
+    }
+    public static void restart(){
+        guessing.setText("");
+        tries=0;
+        answer=rand.nextInt(100)+1;
+        resultDisplay.setText("");
+        tries_label.setText("You have made " + tries + " tries.");
+        result.setText("Your answer is... ");
+        has_quit=false;
+        has_won=false;
+        result.setFont(new Font("Arial", Font.PLAIN, 16));
+    }
+    public static void quit(){
+        resultDisplay.setText("");
+        guessing.setText("");
+        result.setFont(new Font("Arial", Font.BOLD, 18));
+        result.setText("We're sorry to see you quit! The right answer was "+answer+".");
+        has_quit=true;
+        has_won=true;
+    }
+    public static void check(JTextField guess) {
+        boolean isNumber=true;
+        for(int i=0;i<guess.getText().length();i++){
+            if(!(guess.getText().charAt(i)>='0' && guess.getText().charAt(i)<='9')){
+                isNumber=false;
+                break;
+            }
+        }
+        if(!has_quit && isNumber) {
+            int num = Integer.parseInt(guess.getText());
+            if (num == answer) {
+                tries++;
+                if(tries==1){
+                    resultDisplay.setText(" CORRECT! CONGRATULATIONS! It took you 1 try.");
+                }else {
+                    resultDisplay.setText(" CORRECT! CONGRATULATIONS! It took you " + tries + " tries.");
+                }
+                tries_label.setText("");
+                has_won=true;
+            } else {
+                if (num >= 1 && num <= 100) {
+                    resultDisplay.setText(" incorrect. Guess " + answering(num) + ".");
+                    tries++;
+                    if (tries == 1) {
+                        tries_label.setText("You have made 1 try.");
+                    } else {
+                        tries_label.setText("You have made " + tries + " tries.");
+                    }
+                    guessing.setText("");
+                }else{
+                        resultDisplay.setText(" incorrect. Input only numbers from the [1-100] interval.");
+                }
+            }
+        }else{
+            guessing.setText("");
+            if(!isNumber){
+                resultDisplay.setText(" incorrect. Input valid data.");
+            }
+        }
+    }
+    public static String answering(int num){
+        if(answer<num){
+            return "smaller";
+        }else{
+            return "bigger";
+        }
+    }
+}
